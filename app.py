@@ -81,7 +81,7 @@ if __name__ == '__main__':
 #thnkas to sqlacodegen
 
 Base = declarative_base()
-metadata = db.metadata
+# metadata = db.metadata
 
 
 class Company(db.Model):
