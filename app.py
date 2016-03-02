@@ -7,7 +7,7 @@ This file creates your application.
 """
 
 import os
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, Text, text
 from sqlalchemy.orm import relationship
