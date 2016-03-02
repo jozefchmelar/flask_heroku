@@ -16,3 +16,4 @@ mock
 gevent
 Flask-SQLAlchemy==2.1
 SQLAlchemy==1.0.12
+psycopg2==2.6.1
