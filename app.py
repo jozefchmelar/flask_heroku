@@ -4,13 +4,13 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, Text, text, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+# from app.models import Company
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY',
-                                          'this_should_be_configured')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY','this_should_be_configured')
 # app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-app.config[
-    'SQLALCHEMY_DATABASE_URI'] = 'postgres://nqmuwoyhdwrxjp:DllrZMcqqxw5q_swBcQQGo1G2l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/dfuidc2lc8ohah'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://nqmuwoyhdwrxjp:DllrZMcqqxw5q_swBcQQGo1G2l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/dfuidc2lc8ohah'
+
 db = SQLAlchemy(app)
 
 
@@ -37,23 +37,25 @@ def home():
     return render_template('home.html')
 
 
-@app.route('/company/')
+# @app.route('/company/', methods=['GET'])
+# def company():
+#     """Render website's home page."""
+#     return render_template('company.html')
+
+
+@app.route('/company/',  methods=['GET', 'POST'])
 def company():
-    """Render website's home page."""
-    return render_template('company.html')
-
-
-@app.route('/company/', methods=['POST'])
-def my_form_post():
-
-    text = request.form['text']
-    company = Company(text)
-    try:
-	    db.session.add(company)
-	    db.session.commit()    
-	    return '{"status":"true"}'
-    except Exception:
-	    return '{"status":"false"}'		
+    if request.method == 'POST':
+        companyName = request.form['companyName']
+        company = Company(companyName)
+        try:
+    	    db.session.add(company)
+    	    db.session.commit()    
+    	    return '{"status":"true"}'
+        except Exception:
+    	    return '{"status":"false"}'
+    else:   	
+        return render_template('company.html')
 
 
 
