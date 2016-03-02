@@ -66,12 +66,19 @@ def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
 
+@app.route('/company/<id>')
+def wat(id):
+    """Render website's home page."""
+    comp = Company.query.get(id)
+    return jsonify(comp)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
 
 
-
+#thnkas to sqlacodegen
 
 Base = declarative_base()
 metadata = Base.metadata
