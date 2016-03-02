@@ -19,14 +19,12 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY',
                                           'this_should_be_configured')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
-
-Base = db.Model
-
-class Company(Base):
+ 
+class Company(db.Model):
     __tablename__ = 'Company'
 
-    idCompany = Column(BigInteger, primary_key=True)
-    name = Column(String(30))
+    idCompany = db.Column(db.BigInteger, primary_key=True)
+    name = db.Column(db.String(30))
     def __init__(self, name, idCompany):
         self.name = name
         self.idCompany = idCompany
