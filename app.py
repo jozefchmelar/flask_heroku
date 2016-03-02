@@ -9,10 +9,12 @@ This file creates your application.
 import os
 import dj_database_url
 from flask import Flask, render_template, request, redirect, url_for
+from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 
 
 ###
