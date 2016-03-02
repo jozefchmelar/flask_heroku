@@ -81,10 +81,10 @@ if __name__ == '__main__':
 #thnkas to sqlacodegen
 
 Base = declarative_base()
-metadata = Base.metadata
+metadata = db.metadata
 
 
-class Company(Base):
+class Company(db.Model):
     __tablename__ = 'Company'
 
     idCompany = db.Column(BigInteger, primary_key=True)
@@ -97,30 +97,30 @@ class Company(Base):
     def __repr__(self):
         return '<Name %r>' % self.name
 
-class Project(Base):
+class Project(db.Model):
     __tablename__ = 'Projects'
 
     idProject = db.Column(BigInteger, primary_key=True)
     number = db.Column(String(20), nullable=False)
     message = db.Column(Text)
-    idCompany = db.Column(ForeignKey(u'Company.idCompany'), nullable=False, index=True)
+    idCompany = db.Column(ForeignKey('Company.idCompany'), nullable=False, index=True)
     name = db.Column(String(30))
     comment = db.Column(String(200))
 
-    Company = db.relationship(u'Company')
-    Users = db.relationship(u'User', secondary='UserHasProject')
+    Company = db.relationship('Company')
+    Users = db.relationship('User', secondary='UserHasProject')
 
 
 t_UserHasProject = Table(
     'UserHasProject', metadata,
-    db.Column('idUser', ForeignKey(u'Users.idUser'), primary_key=True, nullable=False),
-    db.Column('idProject', ForeignKey(u'Projects.idProject'), primary_key=True, nullable=False)
+    db.Column('idUser', ForeignKey('Users.idUser'), primary_key=True, nullable=False),
+    db.Column('idProject', ForeignKey('Projects.idProject'), primary_key=True, nullable=False)
 )
      
     def __repr__(self):
         return '<Name %r>' % self.name
 
-class User(Base):
+class User(db.Model):
     __tablename__ = 'Users'
 
     idUser = db.Column(Integer, primary_key=True, unique=True)
@@ -136,7 +136,7 @@ class User(Base):
     def __repr__(self):
         return '<Name %r>' % self.name
 
-class User(Base):
+class User(db.Model):
     __tablename__ = 'user'
 
     id = db.Column(Integer, primary_key=True, server_default=text("nextval('user_id_seq'::regclass)"))
