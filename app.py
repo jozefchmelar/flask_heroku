@@ -80,12 +80,8 @@ if __name__ == '__main__':
 
 #thnkas to sqlacodegen
 
-Base = declarative_base()
-# metadata = db.metadata
-
 
 class Company(db.Model):
-    __tablename__ = 'Company'
 
     idCompany = db.Column(BigInteger, primary_key=True)
     name = db.Column(String(30))
@@ -98,7 +94,6 @@ class Company(db.Model):
         return '<Name %r>' % self.name
 
 class Project(db.Model):
-    __tablename__ = 'Projects'
 
     idProject = db.Column(BigInteger, primary_key=True)
     number = db.Column(String(20), nullable=False)
@@ -117,11 +112,10 @@ t_UserHasProject = Table(
     db.Column('idProject', ForeignKey('Projects.idProject'), primary_key=True, nullable=False)
 )
      
-    def __repr__(self):
+def __repr__(self):
         return '<Name %r>' % self.name
 
 class User(db.Model):
-    __tablename__ = 'Users'
 
     idUser = db.Column(Integer, primary_key=True, unique=True)
     phone = db.Column(String(20), nullable=False)
@@ -137,7 +131,6 @@ class User(db.Model):
         return '<Name %r>' % self.name
 
 class User(db.Model):
-    __tablename__ = 'user'
 
     id = db.Column(Integer, primary_key=True, server_default=text("nextval('user_id_seq'::regclass)"))
     name = db.Column(String(80))
