@@ -70,7 +70,7 @@ def page_not_found(error):
 def wat():
     """Render website's home page."""
     comp = Company.query.all()
-    return jsonify(comp)
+    return Company.query.all()
 
 
 
