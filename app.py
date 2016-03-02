@@ -20,6 +20,20 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY',
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
+Base = db.Model
+
+class Company(Base):
+    __tablename__ = 'Company'
+
+    idCompany = Column(BigInteger, primary_key=True)
+    name = Column(String(30))
+    def __init__(self, name, idCompany):
+        self.name = name
+        self.idCompany = idCompany
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
+
 ###
 # Routing for your application.
 ###
@@ -69,22 +83,9 @@ def page_not_found(error):
 def wat():
     # company = Company.query.all()
     """Render website's home page."""     
-    return "Hello, World!"
+    return Company.query.all()
 
 
 if __name__ == '__main__':
     app.run(debug=True)
 #thnkas to sqlacodegen
-Base = db.Model
-
-class Company(Base):
-    __tablename__ = 'Company'
-
-    idCompany = Column(BigInteger, primary_key=True)
-    name = Column(String(30))
-    def __init__(self, name, idCompany):
-        self.name = name
-        self.idCompany = idCompany
-
-    def __repr__(self):
-        return '<Name %r>' % self.name
