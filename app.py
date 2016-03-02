@@ -8,7 +8,8 @@ from sqlalchemy.ext.declarative import declarative_base
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY',
                                       'this_should_be_configured')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://nqmuwoyhdwrxjp:DllrZMcqqxw5q_swBcQQGo1G2l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/dfuidc2lc8ohah'
 db = SQLAlchemy(app)
 
 
@@ -72,9 +73,9 @@ def page_not_found(error):
 
 @app.route('/company/', methods=['GET'])
 def wat():
- # company = Company.query.all()
+ com = Company.query.all()
  """Render website's home page."""
- return jsonify({'Company': Company.query.all()})
+ return render_template('company.html', com = com), 404
 
 
 if __name__ == '__main__':
