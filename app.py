@@ -79,12 +79,13 @@ def page_not_found(error):
     return render_template('404.html'), 404
 
 
-@app.route('/company/')
+@app.route('/company/', methods = ['GET'])
 def wat():
     # company = Company.query.all()
     """Render website's home page.""" 
     com  = Company.query.all()    
-    return com.name
+    return jsonify({'Company': Company.query.all()})
+
 
 
 if __name__ == '__main__':
