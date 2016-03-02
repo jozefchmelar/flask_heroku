@@ -38,6 +38,9 @@ class User(db.Model):
 @app.route('/')
 def home():
     """Render website's home page."""
+    user = User('John Doe', 'john.doe@example.com')
+    db.session.add(user)
+    db.session.commit()
     return render_template('home.html')
 
 
