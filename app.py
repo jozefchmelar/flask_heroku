@@ -66,10 +66,10 @@ def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
 
-@app.route('/company/<id>')
-def wat(id):
+@app.route('/company/')
+def wat():
     """Render website's home page."""
-    comp = Company.query.get(id)
+    comp = Company.query.all()
     return jsonify(comp)
 
 
