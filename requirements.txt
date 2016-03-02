@@ -17,7 +17,6 @@ gevent
 Flask-SQLAlchemy==2.1
 SQLAlchemy==1.0.12
 psycopg2==2.6.1
-Flask-SQLAlchemy==1.0
 Jinja2==2.7.3
 MarkupSafe==0.23
 SQLAlchemy==0.9.6
