@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, Text, text
+from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, Text, text, func
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -21,7 +21,7 @@ class Company(db.Model):
  name = db.Column(db.String(30))
 
  def __init__(self, name, idCompany):
-     self.name = name
+     self.name = name.lower()
      self.idCompany = idCompany
 
  def __repr__(self):
@@ -74,10 +74,15 @@ def page_not_found(error):
 
 @app.route('/company/<pName>', methods=['GET'])
 def wat(pName):
- company = Company.query.filter_by(name=pName).first()
- print type(company)
- """Render website's home page."""
- return company.name
+ pName= pName.lower()
+ company = Company.query.filter(Company.name.ilike(pName)).first()
+ # filter(models.User.username.ilike("%ganye%")).all()
+ # .query.filter(Company.column.ilike(pName))
+ if not company:
+	return render_template('404.html'), 404
+ else:
+	print type(company)
+ 	return company.name
 
 
 if __name__ == '__main__':
