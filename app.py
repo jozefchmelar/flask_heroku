@@ -16,7 +16,7 @@
  class Company(db.Model):
      __tablename__ = 'Company'
 
-     idCompany = db.Column(db.BigInteger, primary_key=True)
+     idCompany = db.Column(db.Integer, primary_key=True)
      name = db.Column(db.String(30))
 
      def __init__(self, name, idCompany):
@@ -45,7 +45,6 @@
  ###
  # The functions below should be applicable to all Flask apps.
  ###
-
 
  @app.route('/<file_name>.txt')
  def send_text_file(file_name):
