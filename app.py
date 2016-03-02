@@ -67,7 +67,7 @@ def page_not_found(error):
 
 @app.route('/company/')
 def wat():
-    company = Company.query.all()
+    # company = Company.query.all()
     """Render website's home page."""     
     return "Hello, World!"
 
