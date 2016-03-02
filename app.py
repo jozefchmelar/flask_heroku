@@ -12,14 +12,28 @@ from flask.ext.sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'this_should_be_configured')
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY',
+                                          'this_should_be_configured')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 db = SQLAlchemy(app)
 
 
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80))
+    email = db.Column(db.String(120), unique=True)
+
+    def __init__(self, name, email):
+        self.name = name
+        self.email = email
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
+
 ###
 # Routing for your application.
 ###
+
 
 @app.route('/')
 def home():
@@ -30,12 +44,12 @@ def home():
 @app.route('/about/')
 def about():
     """Render the website's about page."""
-    return render_template('about.html')    
-
+    return render_template('about.html')
 
 ###
 # The functions below should be applicable to all Flask apps.
 ###
+
 
 @app.route('/<file_name>.txt')
 def send_text_file(file_name):
