@@ -69,7 +69,7 @@ def page_not_found(error):
 def wat():
     """Render website's home page."""
     comp = Company.query.all()
-    return comp.name
+    return comp
 
 
 if __name__ == '__main__':
