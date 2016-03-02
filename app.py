@@ -87,44 +87,65 @@ metadata = Base.metadata
 class Company(Base):
     __tablename__ = 'Company'
 
-    idCompany = Column(BigInteger, primary_key=True)
-    name = Column(String(30))
+    idCompany = db.Column(BigInteger, primary_key=True)
+    name = db.Column(String(30))
 
+    def __init__(idCompany, name):
+        self.name = name
+        self.idCompany = idCompany
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
 
 class Project(Base):
     __tablename__ = 'Projects'
 
-    idProject = Column(BigInteger, primary_key=True)
-    number = Column(String(20), nullable=False)
-    message = Column(Text)
-    idCompany = Column(ForeignKey(u'Company.idCompany'), nullable=False, index=True)
-    name = Column(String(30))
-    comment = Column(String(200))
+    idProject = db.Column(BigInteger, primary_key=True)
+    number = db.Column(String(20), nullable=False)
+    message = db.Column(Text)
+    idCompany = db.Column(ForeignKey(u'Company.idCompany'), nullable=False, index=True)
+    name = db.Column(String(30))
+    comment = db.Column(String(200))
 
-    Company = relationship(u'Company')
-    Users = relationship(u'User', secondary='UserHasProject')
+    Company = db.relationship(u'Company')
+    Users = db.relationship(u'User', secondary='UserHasProject')
 
 
 t_UserHasProject = Table(
     'UserHasProject', metadata,
-    Column('idUser', ForeignKey(u'Users.idUser'), primary_key=True, nullable=False),
-    Column('idProject', ForeignKey(u'Projects.idProject'), primary_key=True, nullable=False)
+    db.Column('idUser', ForeignKey(u'Users.idUser'), primary_key=True, nullable=False),
+    db.Column('idProject', ForeignKey(u'Projects.idProject'), primary_key=True, nullable=False)
 )
-
+     
+    def __repr__(self):
+        return '<Name %r>' % self.name
 
 class User(Base):
     __tablename__ = 'Users'
 
-    idUser = Column(Integer, primary_key=True, unique=True)
-    phone = Column(String(20), nullable=False)
-    name = Column(String(40), nullable=False)
-    position = Column(String(30))
-    mail = Column(String(50), nullable=False)
+    idUser = db.Column(Integer, primary_key=True, unique=True)
+    phone = db.Column(String(20), nullable=False)
+    name = db.Column(String(40), nullable=False)
+    position = db.Column(String(30))
+    mail = db.Column(String(50), nullable=False)
 
+    def __init__(idUser, name):
+        self.name = name
+        self.idUser = idUser
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
 
 class User(Base):
     __tablename__ = 'user'
 
-    id = Column(Integer, primary_key=True, server_default=text("nextval('user_id_seq'::regclass)"))
-    name = Column(String(80))
-    email = Column(String(120), unique=True)
+    id = db.Column(Integer, primary_key=True, server_default=text("nextval('user_id_seq'::regclass)"))
+    name = db.Column(String(80))
+    email = db.Column(String(120), unique=True)
+
+    def __init__(id, name):
+        self.name = name
+        self.id = id
+
+    def __repr__(self):
+        return '<Name %r>' % self.name
