@@ -5,6 +5,7 @@ from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, T
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY',
                                       'this_should_be_configured')
@@ -74,8 +75,10 @@ def page_not_found(error):
 @app.route('/company/', methods=['GET'])
 def wat():
  com = Company.query.all()
+ print type(com[0])
+ print com[0].name
  """Render website's home page."""
- return render_template('company.html', com = com), 404
+ return com[0].name
 
 
 if __name__ == '__main__':
