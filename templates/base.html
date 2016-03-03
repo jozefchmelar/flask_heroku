@@ -30,13 +30,16 @@
       </header>
       en -->
       <body>
-        <section id="main" class="wrapper">
-          <div class="container">
-            <header>
-              <header class="major">
-                {% include "header.html" %}
-              </header>
-            </header>
+         <div style="position: relative; left: 0px; right: 0px; top: 0px; backface-visibility: hidden; transition: -moz-transform 0.5s ease 0s, opacity 0.5s ease 0s;" id="skel-layers-wrapper">
+
+        
+           {% include "header.html" %}
+           <section id="main" class="wrapper">
+          <div class="container">           
+               
+               
+              
+             
             <div id="main" role="main">
               {% block main %}{% endblock %}
             </div>
@@ -66,5 +69,6 @@
         <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.3/CFInstall.min.js"></script>
         <script>window.attachEvent('onload',function(){CFInstall.check({mode:'overlay'})})</script>
         <![endif]-->
+      </div>
       </body>
     </html>

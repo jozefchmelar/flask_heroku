@@ -960,7 +960,7 @@
 /* Banner */
 
 	#banner {
-		background: url("images/overlay.png"), url("../images/banner.jpg");
+		background: url("static/img/overlay.png"), url("../images/banner.jpg");
 		background-position: center;
 		background-repeat: no-repeat;
 		background-size: cover;
@@ -1039,11 +1039,13 @@
 		}
 
 /* Footer */
-
+footer {   
+	bottom:0;}
 	#footer {
 		background: #202222;
 		color: #888;
 		padding: 5em 0em 5em;
+
 		/*position:relative;*/
 	}
 
