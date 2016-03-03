@@ -9,9 +9,10 @@
 */
 
 /* Basic */
- 
+
 	body {
 		background: #fff;
+		padding:0;margin:0;
 	}
 
 	body, input, select, textarea {
@@ -805,6 +806,7 @@
 			input[type="reset"].alt:hover,
 			input[type="button"].alt:hover,
 			.button.alt:hover {
+				background-color: #3ba666;
 				background-color: rgba(144, 144, 144, 0.075);
 			}
 
@@ -1041,8 +1043,10 @@
 	#footer {
 		background: #202222;
 		color: #888;
-		padding: 6em 0em 4em;
+		padding: 5em 0em 5em;
+		/*position:relative;*/
 	}
+
 
 		#footer h2, #footer h3, #footer h4 {
 			color: #ffffff;
