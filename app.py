@@ -17,9 +17,17 @@ app.config[
 db = SQLAlchemy(app)
 
 
+class UserHasProject(object):
+    def __init__(self,idUser,idProject):
+        self.idUser=idUser
+        self.idProject=idProject
+t_UserHasProject = db.Table(
+    'UserHasProject', db.metadata,
+    db.Column('idUser',db.Integer, db.ForeignKey('Users.idUser'), primary_key=True, nullable=False),
+    db.Column('idProject',db.Integer, db.ForeignKey('Projects.idProject'), primary_key=True, nullable=False)
+)
 class Company(db.Model):
     __tablename__ = 'Company'
-
     idCompany = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
 
@@ -27,7 +35,7 @@ class Company(db.Model):
         self.name = name.lower()
 
     def __repr__(self):
-        return '{"Company" : "'+ self.name +'"}'
+        return idCompany
     def toJson(self):
         return '{"Company" : "'+ self.name +'"}'      
 
@@ -38,8 +46,11 @@ class User(db.Model):
     phone  = db.Column(db.String(20), nullable=False)
     name = db.Column(db.String(40), nullable=False)
     position = db.Column(db.String(30))
-    mail = db.Column(db.String(50), nullable=False, unique=True)
-
+    mail = db.Column(db.String(50), nullable=False, unique=True)     
+    projects = db.relationship("Project",
+            secondary=t_UserHasProject,
+            backref=db.backref("users", lazy="dynamic"),
+            )
     def __init__(self, name, phone, mail, position):
         self.name = name.lower()
         self.phone = phone
@@ -50,8 +61,34 @@ class User(db.Model):
         return '<mail %r>' % self.mail
 
     def toJson(self):
-        return '{ "name" : "%s" \n "phone" : "%s" \n "positon" : "%s" \n "mail" : "%s" ' % (self.name,self.phone,self.position,self.mail)
+        return '{ "name" : "%s" \n ",phone" : "%s" \n ",positon" : "%s" \n ",mail" : "%s}" ' % (self.name,self.phone,self.position,self.mail)
 
+class Project(db.Model):
+    __tablename__ = 'Projects'
+
+    idProject = db.Column(db.BigInteger, primary_key=True, server_default=text("nextval('seqproject'::regclass)"))
+    number = db.Column(db.String(20), nullable=False)
+    message = db.Column(db.Text)
+    idCompany = db.Column(db.ForeignKey('Company.idCompany'), nullable=False, index=True)
+    name = db.Column(db.String(30))
+    comment = db.Column(db.String(200))
+    Company = db.relationship('Company')
+   
+
+    def __init__(self, number, idCompany, name, message,comment):
+        self.name = name.lower()
+        self.number = number
+        self.idCompany = idCompany
+        self.message = message 
+        self.comment=comment
+    def toJson(self):
+        return '{ "name" : "%s" \n ",number" : "%s" \n ",idCompany" : "%s" \n ",message" : "%s",comment :"%s"} ' % (self.name,self.number,self.idCompany,self.message,self.comment)
+
+
+db.mapper( UserHasProject,  t_UserHasProject)
+
+
+       
 
 ###
 # Routing for your application.
@@ -97,6 +134,58 @@ def getPersonByMail(pMail):
         print type(company)
         return user.toJson() 
 
+def getPersonIdByMail(mail):
+    pMail = pMail.lower()
+    return (User.query.filter(User.mail.ilike(pMail)).first())
+
+# addPeopleToProject
+@app.route('/AddPeople/', methods=['GET', 'POST'])
+def AddPeople():
+    if request.method == 'POST':   
+        poeple = request.form['people']
+        number = request.form['number']
+        listPeople = re.split(',',poeple)
+        for email in listPeople:
+            if not re.match('[^@]+@[^@]+\.[^@]+', email):
+                return status('mail format error') 
+        else:
+            person =  (User.query.filter(User.mail.ilike(email))).first()
+            project = (Project.query.filter(Project.number.ilike(number))).first()
+            print('aaaaaaaaaapppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppaaaaaaaahoooooooj')
+            print(project.number)
+            print type(project)
+            print (person)
+            print type(person)
+            test = UserHasProject(person.idUser,project.idProject) 
+          
+            db.session.add(test)
+            db.session.commit()
+            # db.session.add(UserHasProject(getPersonByMail(email),number))
+
+        return status('true')
+    else:
+        return render_template('addPeopleToProject.html')
+@app.route('/project/', methods=['GET', 'POST'])
+def project():
+    if request.method == 'POST':
+        name = request.form['name']
+        number = request.form['number']        
+        nameOfTheCompany = request.form['nameOfTheCompany']         
+        companyid =  (Company.query.filter(Company.name.ilike(nameOfTheCompany)).first()).idCompany     
+        message = request.form['message']
+        comment =  request.form['comment']            
+        if not re.match('[1-9]{4}', number): 
+            return status('wrong number format')
+        else:        
+            project = Project(number,companyid,name,message,comment)
+        try:
+            db.session.add(project) 
+            db.session.commit()
+            return status('true')
+        except Exception:
+            return status('false')
+    else:
+        return render_template('project.html')
 
 
 @app.route('/company/', methods=['GET', 'POST'])

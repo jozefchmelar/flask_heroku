@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block js %}
+{% endblock %}
+{% block main %}
+	<h2>Add people to project.</h2>
+		<form action="." method="POST"> 		
+			<input type="text" name="people" placeholder="email adresses of people separated by comma"> <br>
+			<input type="text" name="number" placeholder="number of project [0000]"><br> 
+			<input type="submit" value="Submit" >
+		</form>
+{% endblock %}
