@@ -1,0 +1,1 @@
+{"_sa_instance_state": <sqlalchemy.orm.state.InstanceState object at 0xb577c92c>, "name": u"test1", "phone": u"123456798", "position": u"test1", "idUser": 18, "mail": u"test1@mts.sk"}

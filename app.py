@@ -4,8 +4,11 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, Text, text, func
 from sqlalchemy.orm import relationship
 import re
+import json
+import jsonpickle 
 from sqlalchemy.ext.declarative import declarative_base
 # from app.models import Company
+
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY',
@@ -16,6 +19,8 @@ app.config[
 
 db = SQLAlchemy(app)
 
+def convertToJson(object):
+    json =  jsonpickle.encode(quer)    
 
 class UserHasProject(object):
     def __init__(self,idUser,idProject):
@@ -26,6 +31,7 @@ t_UserHasProject = db.Table(
     db.Column('idUser',db.Integer, db.ForeignKey('Users.idUser'), primary_key=True, nullable=False),
     db.Column('idProject',db.Integer, db.ForeignKey('Projects.idProject'), primary_key=True, nullable=False)
 )
+
 class Company(db.Model):
     __tablename__ = 'Company'
     idCompany = db.Column(db.Integer, primary_key=True)
@@ -36,11 +42,24 @@ class Company(db.Model):
 
     def __repr__(self):
         return idCompany
+
+    def __dict__(self):
+        return {
+            'idCompany': self.idCompany, 
+            'name': self.name,
+         }
+
     def toJson(self):
-        return '{"Company" : "'+ self.name +'"}'      
+        return '{"Company" : "'+ self.name +'"}' 
+
+    def toJsonx(self):
+        return json.dumps(self.__dict__(), default=lambda o: o.__dict__, 
+            sort_keys=True, indent=4)    
 
 class User(db.Model):
     __tablename__ = 'Users'
+
+    __name__ ='User'
 
     idUser = db.Column(Integer, primary_key=True, unique=True)
     phone  = db.Column(db.String(20), nullable=False)
@@ -51,17 +70,28 @@ class User(db.Model):
             secondary=t_UserHasProject,
             backref=db.backref("users", lazy="dynamic"),
             )
+
     def __init__(self, name, phone, mail, position):
         self.name = name.lower()
         self.phone = phone
         self.mail = mail.lower()
         self.position = position.lower()
 
-    def __repr__(self):
-        return '<mail %r>' % self.mail
-
+    
+ 
+    def serialize(self):
+        return {
+            'idUser': self.idUser, 
+            'phone': self.phone,
+            'name': self.name,
+            'mail': str(self.mail),
+            'position': self.position,
+            'projects': self.projects,
+         }
     def toJson(self):
         return '{ "name" : "%s" \n ",phone" : "%s" \n ",positon" : "%s" \n ",mail" : "%s}" ' % (self.name,self.phone,self.position,self.mail)
+    def as_dict(self):
+       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
 
 class Project(db.Model):
     __tablename__ = 'Projects'
@@ -81,6 +111,17 @@ class Project(db.Model):
         self.idCompany = idCompany
         self.message = message 
         self.comment=comment
+
+    def serialize(self):
+        return {
+            'idProject': self.idProject, 
+            'number': self.number,
+            'message': self.message,
+            'idCompany': self.idCompany,
+            'name': self.name,
+            'comment': self.comment,
+            'Company': self.Company,
+         }
     def toJson(self):
         return '{ "name" : "%s" \n ",number" : "%s" \n ",idCompany" : "%s" \n ",message" : "%s",comment :"%s"} ' % (self.name,self.number,self.idCompany,self.message,self.comment)
 
@@ -92,10 +133,15 @@ db.mapper( UserHasProject,  t_UserHasProject)
 
 ###
 # Routing for your application.
-###
+###def toJson(self):
+    #     r
 
 def status(message):
     return '{"Status : " ' + message + '"}'
+
+def getPersonIdByMail(mail):
+    pMail = pMail.lower()
+    return (User.query.filter(User.mail.ilike(pMail)))
 
 @app.route('/')
 def home():
@@ -123,7 +169,15 @@ def person():
     else:
         return render_template('person.html')
 
-  
+@app.route('/person/all', methods=['GET'])
+def getAllPersons(): 
+    select = User.query.all()
+    d=json.loads(jsonpickle.encode(select))
+    for element in d: 
+        del element['py/object'] 
+        del element['_sa_instance_state']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+    return json.dumps(d, indent=4, sort_keys=True)  
+
 @app.route('/person/<pMail>', methods=['GET'])
 def getPersonByMail(pMail):     
     pMail = pMail.lower()
@@ -131,12 +185,23 @@ def getPersonByMail(pMail):
     if not user:
         return render_template('404.html'), 404
     else:
-        print type(company)
-        return user.toJson() 
+        print type(company)     
+        # reply =  str(user.__dict__).replace('\'','"').replace('u"','"')
+        # print(reply)
+        # "_sa_instance_state": <sqlalchemy.orm.state.InstanceState object at 0xb5757d2c>, 
+        return jsonpickle.encode(user)
+        # reply = re.sub('{"_sa_instance_state": <sqlalchemy.orm.state.InstanceState object at 0x........>, ','{',reply)
+        # return reply;
 
-def getPersonIdByMail(mail):
-    pMail = pMail.lower()
-    return (User.query.filter(User.mail.ilike(pMail)).first())
+@app.route('/person/<pMail>/projects', methods=['GET'])
+def getPersonsProjects(pMail):
+    user = User.query.filter(User.mail.ilike(pMail)).first()
+    projects = user.projects
+    respond = ''
+    for p in projects:
+        respond += p.toJson() + ' '
+    return respond 
+        
 
 # addPeopleToProject
 @app.route('/AddPeople/', methods=['GET', 'POST'])
@@ -150,21 +215,18 @@ def AddPeople():
                 return status('mail format error') 
         else:
             person =  (User.query.filter(User.mail.ilike(email))).first()
-            project = (Project.query.filter(Project.number.ilike(number))).first()
-            print('aaaaaaaaaapppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppaaaaaaaahoooooooj')
-            print(project.number)
-            print type(project)
-            print (person)
-            print type(person)
-            test = UserHasProject(person.idUser,project.idProject) 
-          
+            project = (Project.query.filter(Project.number.ilike(number))).first()            
+            test = UserHasProject(person.idUser,project.idProject)    
+        try:       
             db.session.add(test)
             db.session.commit()
-            # db.session.add(UserHasProject(getPersonByMail(email),number))
-
+        except Exception as e :
+            if re.match('.+duplicate key value.+',str(e)):
+                return status('duplicate key value')
         return status('true')
     else:
         return render_template('addPeopleToProject.html')
+
 @app.route('/project/', methods=['GET', 'POST'])
 def project():
     if request.method == 'POST':
@@ -202,6 +264,17 @@ def company():
     else:
         return render_template('company.html')
 
+@app.route('/company/<pName>', methods=['GET'])
+def wat(pName):
+    pName = pName.lower()
+    company = Company.query.filter(Company.name.ilike(pName)).first()
+    if not company:
+        return render_template('404.html'), 404
+    else:
+        print type(company)
+        return company.toJson()
+
+
 @app.route('/about/')
 def about():
     """Render the website's about page."""
@@ -210,12 +283,6 @@ def about():
 ###
 # The functions below should be applicable to all Flask apps.
 ###
-
-@app.route('/<file_name>.txt')
-def send_text_file(file_name):
-    """Send your static text file."""
-    file_dot_text = file_name + '.txt'
-    return app.send_static_file(file_dot_text)
 
 @app.after_request
 def add_header(response):
@@ -228,16 +295,9 @@ def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
 
-@app.route('/company/<pName>', methods=['GET'])
-def wat(pName):
-    pName = pName.lower()
-    company = Company.query.filter(Company.name.ilike(pName)).first()
-    if not company:
-        return render_template('404.html'), 404
-    else:
-        print type(company)
-        return company.toJson()
-
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
 # thnkas to sqlacodegen
