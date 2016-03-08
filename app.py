@@ -34,20 +34,22 @@ t_UserHasProject = db.Table(
 
 class Company(db.Model):
     __tablename__ = 'Company'
+
+    __name__ = 'Company'
     idCompany = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
 
     def __init__(self, name):
-        self.name = name.lower()
+        self.name = name
 
-    def __repr__(self):
-        return idCompany
+    # def __repr__(self):
+    #     return idCompany
 
-    def __dict__(self):
-        return {
-            'idCompany': self.idCompany, 
-            'name': self.name,
-         }
+    # def __dict__(self):
+    #     return {
+    #         'idCompany': self.idCompany, 
+    #         'name': self.name,
+    #      }
 
     def toJson(self):
         return '{"Company" : "'+ self.name +'"}' 
@@ -75,9 +77,7 @@ class User(db.Model):
         self.name = name.lower()
         self.phone = phone
         self.mail = mail.lower()
-        self.position = position.lower()
-
-    
+        self.position = position.lower()    
  
     def serialize(self):
         return {
@@ -88,6 +88,7 @@ class User(db.Model):
             'position': self.position,
             'projects': self.projects,
          }
+
     def toJson(self):
         return '{ "name" : "%s" \n ",phone" : "%s" \n ",positon" : "%s" \n ",mail" : "%s}" ' % (self.name,self.phone,self.position,self.mail)
     def as_dict(self):
@@ -171,12 +172,30 @@ def person():
 
 @app.route('/person/all', methods=['GET'])
 def getAllPersons(): 
-    select = User.query.all()
+    User.query.all()
     d=json.loads(jsonpickle.encode(select))
     for element in d: 
         del element['py/object'] 
         del element['_sa_instance_state']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
     return json.dumps(d, indent=4, sort_keys=True)  
+
+@app.route('/company/all', methods=['GET'])
+def getAllCompanies(): 
+    select = Company.query.all()
+    d=json.loads(jsonpickle.encode(select))
+    for element in d: 
+        del element['py/object'] 
+        del element['_sa_instance_state']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+    return json.dumps(d, indent=4, sort_keys=True) 
+
+@app.route('/project/all', methods=['GET'])
+def getAllProjects(): 
+    select = Project.query.all()
+    d=json.loads(jsonpickle.encode(select))
+    for element in d: 
+        del element['py/object'] 
+        del element['_sa_instance_state']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
+    return json.dumps(d, indent=4, sort_keys=True) 
 
 @app.route('/person/<pMail>', methods=['GET'])
 def getPersonByMail(pMail):     
