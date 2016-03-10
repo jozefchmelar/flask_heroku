@@ -172,7 +172,7 @@ def person():
 
 @app.route('/person/all', methods=['GET'])
 def getAllPersons(): 
-    User.query.all()
+    select = User.query.all()
     d=json.loads(jsonpickle.encode(select))
     for element in d: 
         del element['py/object'] 
