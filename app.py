@@ -22,9 +22,9 @@ app.config[
 
 db = SQLAlchemy(app)
 
-def convertToJson(objects):
-    json =  jsonpickle.encode(objects)    
-
+ 
+#DATABASE DEFINITION
+#RELATIONSHIP DEFINITION
 class UserHasProject(object):
     def __init__(self,idUser,idProject):
         self.idUser=idUser
@@ -62,10 +62,10 @@ class User(db.Model):
             secondary=t_UserHasProject,
             backref=db.backref("users", lazy="dynamic"),
             )
-
+    #password hashing
     def set_password(self, toHash):
         self.password = generate_password_hash(toHash)
-
+    #password hashing
     def check_password(self, hashed):
         return check_password_hash(self.password, hashed)
 
@@ -74,12 +74,14 @@ class User(db.Model):
         self.phone = phone
         self.mail = mail.lower()
         self.position = position.lower()    
-        
+
+    #this is very important to jsonpickle.        
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['_sa_instance_state']
         return state
 
+    #this is very important to jsonpickle.
     def __setstate__(self, state):
         self.__dict__.update(state)
 
@@ -105,17 +107,18 @@ class Project(db.Model):
         self.message = message 
         self.comment=comment
 
+    #this is very important to jsonpickle.     
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['_sa_instance_state']
         return state
-
+    #this is very important to jsonpickle.        
     def __setstate__(self, state):
         self.__dict__.update(state)
     
     def toJson(self):
         return jsonpickle.encode(self, unpicklable=False)
-
+#imporatnt to map the relationship.
 db.mapper( UserHasProject,  t_UserHasProject)
 
 
@@ -133,15 +136,25 @@ def getPersonIdByMail(mail):
     pMail = mail.lower()
     return (User.query.filter(User.mail.ilike(pMail)))
 
+def listToJsonString(pList):
+    jsonString= '[\n'
+    idNumber = 1;
+    for element in pList:
+        jsonString += '\t' +element.toJson()+',\n'
+    jsonString = jsonString[:-2]+'\n]'    
+    return jsonString  
+# print json.dumps(jsonStr, sort_keys=True, indent=2, separators=(',', ': '))
+@app.route('/')                                                                         
+def home():
+    """Render website's home page."""
+    return render_template('home.html')
+
+#checks the password via werkzeug.security package
 @app.route('/login/<mail>|<password>',methods=['GET'])
 def checkPassword(mail,password):
     userToCheck = getPersonIdByMail(mail).first()
     return status(str(userToCheck.check_password(password)))                                                                        
 
-@app.route('/')                                                                         
-def home():
-    """Render website's home page."""
-    return render_template('home.html')
   
 @app.route('/person/', methods=['GET', 'POST'])
 def person():
@@ -167,31 +180,16 @@ def person():
         return render_template('person.html')
 
 @app.route('/person/all', methods=['GET'])
-def getAllPersons(): 
-    select = User.query.all()
-    result = '['
-    for element in select:
-        result += element.toJson()+','
-    result = result[:-1]+']'    
-    return result  
+def getAllPersons():  
+    return listToJsonString(User.query.all()) 
 
 @app.route('/company/all', methods=['GET'])
 def getAllCompanies(): 
-    select = Company.query.all()
-    result = '['
-    for element in select:
-        result += element.toJson()+','
-    result = result[:-1]+']'   
-    return result    
+    return listToJsonString(Company.query.all())    
 
 @app.route('/project/all', methods=['GET'])
 def getAllProjects(): 
-    select = Project.query.all()
-    result = '['
-    for element in select:
-        result += element.toJson()+','
-    result = result[:-1]+']'   
-    return result    
+    return listToJsonString(Project.query.all())     
 
 @app.route('/person/<pMail>/', methods=['GET'])
 def getPersonByMail(pMail):     
@@ -206,12 +204,9 @@ def getPersonByMail(pMail):
 @app.route('/person/<pMail>/projects', methods=['GET'])
 def getPersonsProjects(pMail):
     user = User.query.filter(User.mail.ilike(pMail)).first()
-    projects = user.projects    
-    result = '['
-    for element in projects:
-        result += element.toJson()+','
-    result = result[:-1]+']'   
-    return result
+    projects = user.projects 
+    return listToJsonString(projects)
+  
         
 # addPeopleToProject
 @app.route('/AddPeople/', methods=['GET', 'POST'])
@@ -263,12 +258,7 @@ def project():
 def getProjectUsers(number):
     project = Project.query.filter(Project.number.ilike(number)).first()
     usersInProject = project.users    
-    result = '['
-    for user in usersInProject:
-        result += user.toJson()+','
-    result = result[:-1]+']'   
-    return result
-
+    return listToJsonString(usersInProject) 
 
 @app.route('/company/', methods=['GET', 'POST'])
 def company():
@@ -291,7 +281,6 @@ def wat(pName):
     if not company:
         return render_template('404.html'), 404
     else:
-        print type(company)
         return company.toJson()
 
 
@@ -317,7 +306,4 @@ def page_not_found(error):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-
-
 # thnkas to sqlacodegen
