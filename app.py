@@ -5,8 +5,12 @@ from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, T
 from sqlalchemy.orm import relationship
 import re
 import json
+
 import jsonpickle 
 from sqlalchemy.ext.declarative import declarative_base
+from werkzeug.security import generate_password_hash, \
+     check_password_hash
+
 # from app.models import Company
 
 
@@ -67,17 +71,31 @@ class User(db.Model):
     phone  = db.Column(db.String(20), nullable=False)
     name = db.Column(db.String(40), nullable=False)
     position = db.Column(db.String(30))
-    mail = db.Column(db.String(50), nullable=False, unique=True)     
+    mail = db.Column(db.String(50), nullable=False, unique=True) 
+    password = db.Column(db.String(16), nullable=False)
+    
+
+
     projects = db.relationship("Project",
             secondary=t_UserHasProject,
             backref=db.backref("users", lazy="dynamic"),
             )
+
+    def set_password(self, toHash):
+        self.password = generate_password_hash(toHash)
+
+    def check_password(self, hashed):
+        return check_password_hash(self.password, hashed)
 
     def __init__(self, name, phone, mail, position):
         self.name = name.lower()
         self.phone = phone
         self.mail = mail.lower()
         self.position = position.lower()    
+        
+
+    
+
  
     def serialize(self):
         return {
@@ -141,8 +159,13 @@ def status(message):
     return '{"Status : " ' + message + '"}'
 
 def getPersonIdByMail(mail):
-    pMail = pMail.lower()
+    pMail = mail.lower()
     return (User.query.filter(User.mail.ilike(pMail)))
+
+@app.route('/login/<mail>|<password>',methods=['GET'])
+def checkPassword(mail,password):
+    userToCheck = getPersonIdByMail(mail).first()
+    return status(str(userToCheck.check_password(password)))    
 
 @app.route('/')
 def home():
@@ -154,6 +177,7 @@ def person():
     if request.method == 'POST':
         name = request.form['name']
         mail = request.form['mail']
+        toHash = request.form['password']        
         if not re.match('[^@]+@[^@]+\.[^@]+', mail):
             return status('mail format error')
         position = request.form['position']
@@ -161,7 +185,8 @@ def person():
         if not re.match('[\d+]{8,}', phone):
             return status('phone format error')
         user = User(name, phone, mail, position)
-        try:
+        user.set_password(toHash)
+        try:    
             db.session.add(user)
             db.session.commit()
             return status('true')
