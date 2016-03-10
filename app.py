@@ -5,7 +5,6 @@ from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, T
 from sqlalchemy.orm import relationship
 import re
 import json
-
 import jsonpickle 
 from sqlalchemy.ext.declarative import declarative_base
 from werkzeug.security import generate_password_hash, \
@@ -23,8 +22,8 @@ app.config[
 
 db = SQLAlchemy(app)
 
-def convertToJson(object):
-    json =  jsonpickle.encode(quer)    
+def convertToJson(objects):
+    json =  jsonpickle.encode(objects)    
 
 class UserHasProject(object):
     def __init__(self,idUser,idProject):
@@ -38,33 +37,19 @@ t_UserHasProject = db.Table(
 
 class Company(db.Model):
     __tablename__ = 'Company'
-
     __name__ = 'Company'
+
     idCompany = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
 
     def __init__(self, name):
         self.name = name
 
-    # def __repr__(self):
-    #     return idCompany
-
-    # def __dict__(self):
-    #     return {
-    #         'idCompany': self.idCompany, 
-    #         'name': self.name,
-    #      }
-
     def toJson(self):
         return '{"Company" : "'+ self.name +'"}' 
-
-    def toJsonx(self):
-        return json.dumps(self.__dict__(), default=lambda o: o.__dict__, 
-            sort_keys=True, indent=4)    
-
+    
 class User(db.Model):
     __tablename__ = 'Users'
-
     __name__ ='User'
 
     idUser = db.Column(Integer, primary_key=True, unique=True)
@@ -72,10 +57,7 @@ class User(db.Model):
     name = db.Column(db.String(40), nullable=False)
     position = db.Column(db.String(30))
     mail = db.Column(db.String(50), nullable=False, unique=True) 
-    password = db.Column(db.String(16), nullable=False)
-    
-
-
+    password = db.Column(db.String(16), nullable=False)  
     projects = db.relationship("Project",
             secondary=t_UserHasProject,
             backref=db.backref("users", lazy="dynamic"),
@@ -93,24 +75,16 @@ class User(db.Model):
         self.mail = mail.lower()
         self.position = position.lower()    
         
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_sa_instance_state']
+        return state
 
-    
-
- 
-    def serialize(self):
-        return {
-            'idUser': self.idUser, 
-            'phone': self.phone,
-            'name': self.name,
-            'mail': str(self.mail),
-            'position': self.position,
-            'projects': self.projects,
-         }
+    def __setstate__(self, state):
+        self.__dict__.update(state)
 
     def toJson(self):
-        return '{ "name" : "%s" \n ",phone" : "%s" \n ",positon" : "%s" \n ",mail" : "%s}" ' % (self.name,self.phone,self.position,self.mail)
-    def as_dict(self):
-       return {c.name: getattr(self, c.name) for c in self.__table__.columns}
+        return jsonpickle.encode(self, unpicklable=False)    
 
 class Project(db.Model):
     __tablename__ = 'Projects'
@@ -122,7 +96,7 @@ class Project(db.Model):
     name = db.Column(db.String(30))
     comment = db.Column(db.String(200))
     Company = db.relationship('Company')
-   
+    
 
     def __init__(self, number, idCompany, name, message,comment):
         self.name = name.lower()
@@ -131,19 +105,16 @@ class Project(db.Model):
         self.message = message 
         self.comment=comment
 
-    def serialize(self):
-        return {
-            'idProject': self.idProject, 
-            'number': self.number,
-            'message': self.message,
-            'idCompany': self.idCompany,
-            'name': self.name,
-            'comment': self.comment,
-            'Company': self.Company,
-         }
-    def toJson(self):
-        return '{ "name" : "%s" \n ",number" : "%s" \n ",idCompany" : "%s" \n ",message" : "%s",comment :"%s"} ' % (self.name,self.number,self.idCompany,self.message,self.comment)
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_sa_instance_state']
+        return state
 
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+    
+    def toJson(self):
+        return jsonpickle.encode(self, unpicklable=False)
 
 db.mapper( UserHasProject,  t_UserHasProject)
 
@@ -165,9 +136,9 @@ def getPersonIdByMail(mail):
 @app.route('/login/<mail>|<password>',methods=['GET'])
 def checkPassword(mail,password):
     userToCheck = getPersonIdByMail(mail).first()
-    return status(str(userToCheck.check_password(password)))    
+    return status(str(userToCheck.check_password(password)))                                                                        
 
-@app.route('/')
+@app.route('/')                                                                         
 def home():
     """Render website's home page."""
     return render_template('home.html')
@@ -198,55 +169,50 @@ def person():
 @app.route('/person/all', methods=['GET'])
 def getAllPersons(): 
     select = User.query.all()
-    d=json.loads(jsonpickle.encode(select))
-    for element in d: 
-        del element['py/object'] 
-        del element['_sa_instance_state']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-    return json.dumps(d, indent=4, sort_keys=True)  
+    result = '['
+    for element in select:
+        result += element.toJson()+','
+    result = result[:-1]+']'    
+    return result  
 
 @app.route('/company/all', methods=['GET'])
 def getAllCompanies(): 
     select = Company.query.all()
-    d=json.loads(jsonpickle.encode(select))
-    for element in d: 
-        del element['py/object'] 
-        del element['_sa_instance_state']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-    return json.dumps(d, indent=4, sort_keys=True) 
+    result = '['
+    for element in select:
+        result += element.toJson()+','
+    result = result[:-1]+']'   
+    return result    
 
 @app.route('/project/all', methods=['GET'])
 def getAllProjects(): 
     select = Project.query.all()
-    d=json.loads(jsonpickle.encode(select))
-    for element in d: 
-        del element['py/object'] 
-        del element['_sa_instance_state']                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
-    return json.dumps(d, indent=4, sort_keys=True) 
+    result = '['
+    for element in select:
+        result += element.toJson()+','
+    result = result[:-1]+']'   
+    return result    
 
-@app.route('/person/<pMail>', methods=['GET'])
+@app.route('/person/<pMail>/', methods=['GET'])
 def getPersonByMail(pMail):     
     pMail = pMail.lower()
     user = User.query.filter(User.mail.ilike(pMail)).first()
-    if not user:
+    if user:
+        return user.toJson()
+    else: 
         return render_template('404.html'), 404
-    else:
-        print type(company)     
-        # reply =  str(user.__dict__).replace('\'','"').replace('u"','"')
-        # print(reply)
-        # "_sa_instance_state": <sqlalchemy.orm.state.InstanceState object at 0xb5757d2c>, 
-        return jsonpickle.encode(user)
-        # reply = re.sub('{"_sa_instance_state": <sqlalchemy.orm.state.InstanceState object at 0x........>, ','{',reply)
-        # return reply;
+ 
 
 @app.route('/person/<pMail>/projects', methods=['GET'])
 def getPersonsProjects(pMail):
     user = User.query.filter(User.mail.ilike(pMail)).first()
-    projects = user.projects
-    respond = ''
-    for p in projects:
-        respond += p.toJson() + ' '
-    return respond 
+    projects = user.projects    
+    result = '['
+    for element in projects:
+        result += element.toJson()+','
+    result = result[:-1]+']'   
+    return result
         
-
 # addPeopleToProject
 @app.route('/AddPeople/', methods=['GET', 'POST'])
 def AddPeople():
@@ -292,6 +258,16 @@ def project():
             return status('false')
     else:
         return render_template('project.html')
+
+@app.route('/project/<number>/users', methods=['GET', 'POST'])
+def getProjectUsers(number):
+    project = Project.query.filter(Project.number.ilike(number)).first()
+    usersInProject = project.users    
+    result = '['
+    for user in usersInProject:
+        result += user.toJson()+','
+    result = result[:-1]+']'   
+    return result
 
 
 @app.route('/company/', methods=['GET', 'POST'])
