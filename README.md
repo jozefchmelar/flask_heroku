@@ -1,31 +1,42 @@
 cesty:
 
 vrati status ci nam sedi meno heslo s udajmi v db
-/login/<mail>|<password>
+
+`/login/<mail>|<password>`
 
 GET : vykresli stranku na pridanie POST :  z formularov si vyberie data a prida uzivatela do db
-/person
+
+`/person`
 
 GET : vrati vsetky person/company/project v json 
-/person/all 
-/company/all
-/project/all
+
+`/person/all `
+
+`/company/all`
+
+`/project/all`
+
+
 
 vrati uzivatela podla mailu <pMail>
-/person/<pMail>/
+
+
+`/person/<pMail>/`
 
 vrati projekty uzivatela
-/person/<pMail>/projects'
+
+
+`/person/<pMail>/projects`
 
 GET: vykrei stranku na pridanie uzivatela ku projektu POST: prida ludi ku projektu
-/AddPeople/
+`/AddPeople/`
 
 GET vykresli stranku na pridanie projektu POST : vytvori novy projekt.
-project/
+`project/`
 
 GET : podla cisla projektu vrati prisluchajucih uzivatelov
-/project/<number>/users
+`/project/<number>/users`
 
 GET: vrati udaje o firme podla jej mena.
-/company/<pName>'
+`/company/<pName>`
 
