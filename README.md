@@ -29,14 +29,18 @@ vrati projekty uzivatela
 `/person/<pMail>/projects`
 
 GET: vykrei stranku na pridanie uzivatela ku projektu POST: prida ludi ku projektu
+
 `/AddPeople/`
 
 GET vykresli stranku na pridanie projektu POST : vytvori novy projekt.
+
 `project/`
 
 GET : podla cisla projektu vrati prisluchajucih uzivatelov
+
 `/project/<number>/users`
 
 GET: vrati udaje o firme podla jej mena.
+
 `/company/<pName>`
 
