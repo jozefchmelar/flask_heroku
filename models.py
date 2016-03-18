@@ -1,4 +1,13 @@
-from flask_heroku import app
+from app import app,db
+from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, Text, text, func
+from sqlalchemy.orm import relationship
+import jsonpickle
+
+from werkzeug.security import generate_password_hash, \
+     check_password_hash 
+#DATABASE DEFINITION
+#RELATIONSHIP DEFINITION
 class UserHasProject(object):
     def __init__(self,idUser,idProject):
         self.idUser=idUser
@@ -8,42 +17,59 @@ t_UserHasProject = db.Table(
     db.Column('idUser',db.Integer, db.ForeignKey('Users.idUser'), primary_key=True, nullable=False),
     db.Column('idProject',db.Integer, db.ForeignKey('Projects.idProject'), primary_key=True, nullable=False)
 )
+
 class Company(db.Model):
     __tablename__ = 'Company'
+    __name__ = 'Company'
+
     idCompany = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30))
 
     def __init__(self, name):
-        self.name = name.lower()
+        self.name = name
 
-    def __repr__(self):
-        return idCompany
     def toJson(self):
-        return '{"Company" : "'+ self.name +'"}'      
-
+        return '{"Company" : "'+ self.name +'"}' 
+    
 class User(db.Model):
     __tablename__ = 'Users'
+    __name__ ='User'
 
     idUser = db.Column(Integer, primary_key=True, unique=True)
     phone  = db.Column(db.String(20), nullable=False)
     name = db.Column(db.String(40), nullable=False)
     position = db.Column(db.String(30))
-    mail = db.Column(db.String(50), nullable=False, unique=True)     
+    mail = db.Column(db.String(50), nullable=False, unique=True) 
+    password = db.Column(db.String(16), nullable=False)  
     projects = db.relationship("Project",
             secondary=t_UserHasProject,
             backref=db.backref("users", lazy="dynamic"),
             )
+    #password hashing
+    def set_password(self, toHash):
+        self.password = generate_password_hash(toHash)
+    #password hashing
+    def check_password(self, hashed):
+        return check_password_hash(self.password, hashed)
+
     def __init__(self, name, phone, mail, position):
         self.name = name.lower()
         self.phone = phone
         self.mail = mail.lower()
-        self.position = position.lower()
+        self.position = position.lower()    
 
-    def __repr__(self):
-        return '<mail %r>' % self.mail
+    #this is very important to jsonpickle.        
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_sa_instance_state']
+        return state
+
+    #this is very important to jsonpickle.
+    def __setstate__(self, state):
+        self.__dict__.update(state)
 
     def toJson(self):
-        return '{ "name" : "%s" \n ",phone" : "%s" \n ",positon" : "%s" \n ",mail" : "%s}" ' % (self.name,self.phone,self.position,self.mail)
+        return jsonpickle.encode(self, unpicklable=False)    
 
 class Project(db.Model):
     __tablename__ = 'Projects'
@@ -55,7 +81,7 @@ class Project(db.Model):
     name = db.Column(db.String(30))
     comment = db.Column(db.String(200))
     Company = db.relationship('Company')
-   
+    
 
     def __init__(self, number, idCompany, name, message,comment):
         self.name = name.lower()
@@ -63,8 +89,17 @@ class Project(db.Model):
         self.idCompany = idCompany
         self.message = message 
         self.comment=comment
+
+    #this is very important to jsonpickle.     
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        del state['_sa_instance_state']
+        return state
+    #this is very important to jsonpickle.        
+    def __setstate__(self, state):
+        self.__dict__.update(state)
+    
     def toJson(self):
-        return '{ "name" : "%s" \n ",number" : "%s" \n ",idCompany" : "%s" \n ",message" : "%s",comment :"%s"} ' % (self.name,self.number,self.idCompany,self.message,self.comment)
-
-
+        return jsonpickle.encode(self, unpicklable=False)
+#imporatnt to map the relationship.
 db.mapper( UserHasProject,  t_UserHasProject)
