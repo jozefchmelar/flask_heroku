@@ -2,7 +2,7 @@
 <html class="no-js" lang="en">
   <head>
     <meta charset="utf-8">
-    <title>{% block title %}yoursite.com{% endblock %}</title>
+    <title>{% block title %}Chmelar{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -31,29 +31,25 @@
     <!-- Need Modernizr? Uncomment the following script. -->
     <!-- <script src="/static/js/modernizr.js"></script> -->
   </head>
-  <!-- start
-  <section id="main" class="wrapper">
-    <div class="container">
-      <header class="major">
-        <h2>Elements</h2>
-        <p>Lorem ipsum dolor sit amet nullam id egestas urna aliquam</p>
-      </header>
-      en -->
+ 
       <body>
-        <div style="position: relative; left: 0px; right: 0px; top: 0px; backface-visibility: hidden; transition: -moz-transform 0.5s ease 0s, opacity 0.5s ease 0s;" id="skel-layers-wrapper">          
+      <!--   <div style="position: relative; left: 0px; right: 0px; top: 0px; backface-visibility: hidden; transition: -moz-transform 0.5s ease 0s, opacity 0.5s ease 0s;" id="skel-layers-wrapper">           -->
           {% include "header.html" %}
           <section id="main" class="wrapper">
             <div class="container">
-              <div id="main" role="main">
+              <div >
                 {% block main %}
                 {% endblock %}
               </div>
             </div>
           </section>
         </div>
-        <footer id="footer">          
+        
+<!--         <footer id="footer">          
           {% include "footer.html" %}          
         </footer>
+ -->
+
         <!-- JavaScript at the bottom for fast page loading -->
         <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if necessary -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>

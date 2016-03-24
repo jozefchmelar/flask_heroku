@@ -1045,7 +1045,10 @@ footer {
 		background: #202222;
 		color: #888;
 		padding: 5em 0em 5em;
-
+		 position:absolute;
+   		bottom:0;
+   		width:100%;
+   		height:60px;   /* Height of the footer */
 		/*position:relative;*/
 	}
 

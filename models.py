@@ -3,33 +3,22 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, Text, text, func
 from sqlalchemy.orm import relationship
 import jsonpickle
-
 from werkzeug.security import generate_password_hash, \
      check_password_hash 
+
 #DATABASE DEFINITION
 #RELATIONSHIP DEFINITION
 class UserHasProject(object):
     def __init__(self,idUser,idProject):
         self.idUser=idUser
         self.idProject=idProject
+
 t_UserHasProject = db.Table(
     'UserHasProject', db.metadata,
     db.Column('idUser',db.Integer, db.ForeignKey('Users.idUser'), primary_key=True, nullable=False),
     db.Column('idProject',db.Integer, db.ForeignKey('Projects.idProject'), primary_key=True, nullable=False)
 )
 
-class Company(db.Model):
-    __tablename__ = 'Company'
-    __name__ = 'Company'
-
-    idCompany = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(30))
-
-    def __init__(self, name):
-        self.name = name
-
-    def toJson(self):
-        return '{"Company" : "'+ self.name +'"}' 
     
 class User(db.Model):
     __tablename__ = 'Users'
@@ -62,6 +51,7 @@ class User(db.Model):
     def __getstate__(self):
         state = self.__dict__.copy()
         del state['_sa_instance_state']
+        del state['password']
         return state
 
     #this is very important to jsonpickle.
@@ -101,5 +91,18 @@ class Project(db.Model):
     
     def toJson(self):
         return jsonpickle.encode(self, unpicklable=False)
+
+class Company(db.Model):
+    __tablename__ = 'Company'
+    __name__ = 'Company'
+
+    idCompany = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(30))
+
+    def __init__(self, name):
+        self.name = name
+
+    def toJson(self):
+        return '{"Company" : "'+ self.name +'"}'         
 #imporatnt to map the relationship.
-db.mapper( UserHasProject,  t_UserHasProject)
+db.mapper(UserHasProject,t_UserHasProject)
