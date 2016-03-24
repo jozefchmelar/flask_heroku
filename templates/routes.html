@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block js %}
+	<script>
+	$(function() {
+	$('#searchPersonByMail').submit(function(){
+		var mail = $('#mailAdressOfPerson').val();
+	$(this).attr('action', "/person/" + mail  );
+
+	
+	});
+	$('#searchProjectsOfUser').submit(function(){
+		var email = $('#mailAdressOfPersonToSerachProject').val();
+	$(this).attr('action', "/person/" + email +"/projects" );
+	});
+	});
+	
+
+	 </script>
+{% endblock %}
+{% block main %}
+	<h1>Routes</h1>
+	<h2>Poeple</h2>
+	<ul class="actions">
+		<li><a href={{url_for('person')}}><input type="submit" value="Add person">  </a></li>
+		<li><a href={{url_for('getAllPersons')}}><input type="submit" value="All persons"> </a></li>
+
+		<form action='' name='searchPersonByMail' id="searchPersonByMail" method='GET'>
+			<br>
+			<li><input id="mailAdressOfPerson" type="text" name="mail" placeholder="email adress of person"></li>
+			<li><input type="submit" value="Search"></li>		
+		</form>	
+
+		<form action='' name='searchProjectsOfUser' id="searchProjectsOfUser" method='GET'>
+			<br>
+			<li><input id="mailAdressOfPersonToSerachProject" type="text" name="mailAdressOfPersonToSerachProject" placeholder="email adress  to search his projects"></li>
+			<li><input type="submit" value="Search"></li>		
+		</form>		
+	</ul>	
+	
+{% endblock %}
