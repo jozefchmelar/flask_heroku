@@ -4,7 +4,7 @@
 
 import unittest
 from app import app
-from app import Company
+#from app import Company
 
 class TestApp(unittest.TestCase):
 
