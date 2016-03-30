@@ -1,15 +1,13 @@
 import os
 import re
-from flask import Flask, render_template, request, redirect, url_for, jsonify,json
-from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.declarative import declarative_base
+import jsonpickle
+from flask import Flask, render_template, request,json
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, Text, text, func
 from sqlalchemy.orm import relationship
-import jsonpickle
 from werkzeug.security import generate_password_hash, \
      check_password_hash 
-
+import db
 # from app.models import Company
 
 app = Flask(__name__)
@@ -18,116 +16,17 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY','this_should_be_configure
 # url to connect to the database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://nqmuwoyhdwrxjp:DllrZMcqqxw5q_swBcQQGo1G2l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/dfuidc2lc8ohah'
 #creatre new instance of sqlalchemy 
-db = SQLAlchemy(app)
-app.config['SESSION_COOKIE_NAME']='testSession'
+# db = SQLAlchemy(app)
+#app.config['SESSION_COOKIE_NAME']='testSession'
 
-class UserHasProject(object):
-    def __init__(self,idUser,idProject):
-        self.idUser=idUser
-        self.idProject=idProject
-
-t_UserHasProject = db.Table(
-    'UserHasProject', db.metadata,
-    db.Column('idUser',db.Integer, db.ForeignKey('Users.idUser'), primary_key=True, nullable=False),
-    db.Column('idProject',db.Integer, db.ForeignKey('Projects.idProject'), primary_key=True, nullable=False)
-)
-
-    
-class User(db.Model):
-    __tablename__ = 'Users'
-    __name__ ='User'
-
-    idUser = db.Column(Integer, primary_key=True, unique=True)
-    phone  = db.Column(db.String(20), nullable=False)
-    name = db.Column(db.String(40), nullable=False)
-    position = db.Column(db.String(30))
-    mail = db.Column(db.String(50), nullable=False, unique=True) 
-    password = db.Column(db.String(16), nullable=False)  
-    projects = db.relationship("Project",
-            secondary=t_UserHasProject,
-            backref=db.backref("users", lazy="dynamic"),
-            )
-    #password hashing
-    def set_password(self, toHash):
-        self.password = generate_password_hash(toHash)
-    #password hashing
-    def check_password(self, hashed):
-        return check_password_hash(self.password, hashed)
-
-    def __init__(self, name, phone, mail, position):
-        self.name = name.lower()
-        self.phone = phone
-        self.mail = mail.lower()
-        self.position = position.lower()    
-
-    #this is very important to jsonpickle.        
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        del state['_sa_instance_state']
-        del state['password']
-        return state
-
-    #this is very important to jsonpickle.
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-
-    def toJson(self):
-        return jsonpickle.encode(self, unpicklable=False)    
-
-class Project(db.Model):
-    __tablename__ = 'Projects'
-
-    idProject = db.Column(db.BigInteger, primary_key=True, server_default=text("nextval('seqproject'::regclass)"))
-    number = db.Column(db.String(20), nullable=False)
-    message = db.Column(db.Text)
-    idCompany = db.Column(db.ForeignKey('Company.idCompany'), nullable=False, index=True)
-    name = db.Column(db.String(30))
-    comment = db.Column(db.String(200))
-    Company = db.relationship('Company')
-    
-
-    def __init__(self, number, idCompany, name, message,comment):
-        self.name = name.lower()
-        self.number = number
-        self.idCompany = idCompany
-        self.message = message 
-        self.comment=comment
-
-    #this is very important to jsonpickle.     
-    def __getstate__(self):
-        state = self.__dict__.copy()
-        del state['_sa_instance_state']
-        return state
-    #this is very important to jsonpickle.        
-    def __setstate__(self, state):
-        self.__dict__.update(state)
-    
-    def toJson(self):
-        return jsonpickle.encode(self, unpicklable=False)
-
-class Company(db.Model):
-    __tablename__ = 'Company'
-    __name__ = 'Company'
-
-    idCompany = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(30))
-
-    def __init__(self, name):
-        self.name = name
-
-    def toJson(self):
-        return '{"Company" : "'+ self.name +'"}'         
-#imporatnt to map the relationship.
-db.mapper(UserHasProject,t_UserHasProject)
-
-
+ 
 
 def status(message):
     return '{"Status : "' + message + '"}'
 #this will return a query with users based on the mail.
 def getPersonIdByMail(mail):
     pMail = mail.lower()
-    return (User.query.filter(User.mail.ilike(pMail)))
+    return (db.User.query.filter(db.User.mail.ilike(pMail)))
 #takes a list and returns json 
 def listToJsonString(pList):
     jsonString= '['
@@ -175,34 +74,35 @@ def person():
         if not re.match('[\d+]{8,}', phone):
             return status('phone format error')
 
-        user = User(name, phone, mail, position)
+        user = db.User(name, phone, mail, position)
         user.set_password(toHash)
-        try:    
-            db.session.add(user)
-            db.session.commit()
+        try:         
+            # first db stands for variable inside app.py  second db is SQLAlchemy object inside db.py
+            db.db.session.add(user)
+            db.db.session.commit()
             return status('true')
-        except Exception:
-            return status('duplicate mail')
+        except Exception as e:
+            return status(str(e))
     else:
         return render_template('person.html')
 
 @app.route('/person/all', methods=['GET'])
 def getAllPersons():  
-    return listToJsonString(User.query.all()) 
+    return listToJsonString(db.User.query.all()) 
 
 @app.route('/company/all', methods=['GET'])
 def getAllCompanies(): 
-    return listToJsonString(Company.query.all())    
+    return listToJsonString(db.Company.query.all())    
 
 @app.route('/project/all', methods=['GET'])
 def getAllProjects(): 
-    return listToJsonString(Project.query.all())     
+    return listToJsonString(db.Project.query.all())     
 
 #return Json of person based on the mail
 @app.route('/person/<pMail>', methods=['GET','POST'])
 def getPersonByMail(pMail):     
     pMail = pMail.lower()
-    user = User.query.filter(User.mail.ilike(pMail)).first()
+    user = db.User.query.filter(db.User.mail.ilike(pMail)).first()
     if user:
         return user.toJson()
     else: 
@@ -217,7 +117,7 @@ def getPersonByMailFromForm():
 #returns all projects of the person based on persons mail.
 @app.route('/person/<pMail>/projects', methods=['GET','POST'])
 def getPersonsProjects(pMail):
-    user = User.query.filter(User.mail.ilike(pMail)).first()
+    user = db.User.query.filter(db.User.mail.ilike(pMail)).first()
     projects = user.projects 
     return listToJsonString(projects)
           
@@ -236,12 +136,12 @@ def AddPeople():
                 return status('mail format error') 
         else: 
             #find project based on number
-            project = (Project.query.filter(Project.number.ilike(number))).first()    
+            project = (db.Project.query.filter(db.Project.number.ilike(number))).first()    
             #go through emails in list and add data to session and after that commit it into db
             for email in listPeople:    
                 person = getPersonIdByMail(email).first() 
-                test = UserHasProject(person.idUser,project.idProject)   
-                db.session.add(test) 
+                test = db.UserHasProject(person.idUser,project.idProject)   
+                db.db.session.add(test) 
         try:       
             #db.session.add(test)
             db.session.commit()
@@ -261,15 +161,15 @@ def project():
         message = request.form['message']
         comment =  request.form['comment']            
          #based on the name of the company find it's Id
-        companyid =  (Company.query.filter(Company.name.ilike(nameOfTheCompany)).first()).idCompany   
+        companyid =  (db.Company.query.filter(db.Company.name.ilike(nameOfTheCompany)).first()).idCompany   
         #number has to be 4 digit number.
         if not re.match('[0-9]{4}', number): 
             return status('wrong number format')
         else:        
-            project = Project(number,companyid,name,message,comment)
+            project = db.Project(number,companyid,name,message,comment)
         try:
-            db.session.add(project) 
-            db.session.commit()
+            db.db.session.add(project) 
+            db.db.session.commit()
             return status('true')
         except Exception:
             return status('false')
@@ -278,7 +178,7 @@ def project():
 
 @app.route('/project/<number>/users', methods=['GET', 'POST'])
 def getProjectUsers(number):
-    project = (Project.query.filter(Project.number.ilike(number))).first()
+    project = (db.Project.query.filter(db.Project.number.ilike(number))).first()
     usersInProject = project.users    
     return listToJsonString(usersInProject) 
 
@@ -286,10 +186,10 @@ def getProjectUsers(number):
 def company():
     if request.method == 'POST':
         companyName = request.form['companyName']
-        company = Company(companyName)
+        company = db.Company(companyName)
         try:
-            db.session.add(company)
-            db.session.commit()
+            db.db.session.add(company)
+            db.db.session.commit()
             return status('true')
         except Exception:
             return status('false')
@@ -299,7 +199,7 @@ def company():
 @app.route('/company/<pName>', methods=['GET'])
 def wat(pName):
     pName = pName.lower()
-    company =  Company.query.filter(Company.name.ilike(pName)).first()
+    company =  db.Company.query.filter(Company.name.ilike(pName)).first()
     if not company:
         return render_template('404.htm l'), 404
     else:
