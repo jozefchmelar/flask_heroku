@@ -3,3 +3,4 @@ jsonpickle == 0.9.2
 SQLAlchemy == 1.0.12
 Werkzeug == 0.11.4
 gunicorn == 19.4.5
+gevent == 1.1.0 
