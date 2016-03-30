@@ -45,7 +45,8 @@ def home():
 @app.route('/login/<mail>|<password>',methods=['GET'])
 def checkPassword(mail,password):
     userToCheck = getPersonIdByMail(mail).first()
-    return status(str(userToCheck.check_password(password)))                                                                        
+    return status(str(userToCheck.check_password(password)))
+                                                                            
 #this will take data from forms name,mail,password etc. 
 #checks for mail format, phone format  and after that it'll 
 #save it into database 
