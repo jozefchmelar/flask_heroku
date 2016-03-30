@@ -22,7 +22,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://nqmuwoyhdwrxjp:DllrZMcqqxw5q
  
 
 def status(message):
-    return '{"Status : "' + message + '"}'
+    return '{"Status" : "' + message + '"}'
 #this will return a query with users based on the mail.
 def getPersonIdByMail(mail):
     pMail = mail.lower()
