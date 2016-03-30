@@ -14,7 +14,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY','this_should_be_configure
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://nqmuwoyhdwrxjp:DllrZMcqqxw5q_swBcQQGo1G2l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/dfuidc2lc8ohah'
 #creatre new instance of sqlalchemy 
 db = SQLAlchemy(app)
-app.config['SESSION_COOKIE_NAME']='test'
+app.config['SESSION_COOKIE_NAME']='testSession'
 
 def status(message):
     return '{"Status : "' + message + '"}'
