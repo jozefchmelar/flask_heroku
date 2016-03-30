@@ -1,7 +1,7 @@
 import os
 import re
 from flask import Flask, render_template, request, redirect, url_for, jsonify,json
-from flask.ext.sqlalchemy import SQLAlchemy
+# from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy.ext.declarative import declarative_base
 import models
 
