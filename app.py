@@ -37,7 +37,7 @@ def listToJsonString(pList):
 # print json.dumps(jsonStr, sort_keys=True, indent=2, separators=(',', ': '))
 # Routing for your application.
 
-@app.route('/')                                                                         
+@app.route('/',methods=['GET'])                                                                         
 def home():
     return render_template('home.html')
 
