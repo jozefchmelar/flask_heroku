@@ -17,7 +17,7 @@ def status(message):
 #this will return a query with users based on the mail.
 def getPersonIdByMail(mail):
     pMail = mail.lower()
-    return (db.User.query.filter(db.User.mail.ilike(pMail)))
+    return (User.query.filter(User.mail.ilike(pMail)))
 #takes a list and ret3urns json 
 def listToJsonString(pList):
     jsonString= '['
@@ -65,12 +65,11 @@ def person():
         if not re.match('[\d+]{8,}', phone):
             return status('phone format error')
 
-        user = db.User(name, phone, mail, position)
+        user = User(name, phone, mail, position)
         user.set_password(toHash)
         try:         
-            # first db stands for variable inside app.py  second db is SQLAlchemy object inside db.py
-            db.db.session.add(user)
-            db.db.session.commit()
+            db.session.add(user)
+            db.session.commit()
             return status('true')
         except Exception as e:
             return status(str(e))
@@ -83,17 +82,17 @@ def getAllPersons():
 
 @app.route('/company/all', methods=['GET'])
 def getAllCompanies(): 
-    return listToJsonString(db.Company.query.all())    
+    return listToJsonString(Company.query.all())    
 
 @app.route('/project/all', methods=['GET'])
 def getAllProjects(): 
-    return listToJsonString(db.Project.query.all())     
+    return listToJsonString(Project.query.all())     
 
 #return Json of person based on the mail
 @app.route('/person/<pMail>', methods=['GET','POST'])
 def getPersonByMail(pMail):     
     pMail = pMail.lower()
-    user = db.User.query.filter(db.User.mail.ilike(pMail)).first()
+    user = User.query.filter(User.mail.ilike(pMail)).first()
     if user:
         return user.toJson()
     else: 
@@ -108,7 +107,7 @@ def getPersonByMailFromForm():
 #returns all projects of the person based on persons mail.
 @app.route('/person/<pMail>/projects', methods=['GET','POST'])
 def getPersonsProjects(pMail):
-    user = db.User.query.filter(db.User.mail.ilike(pMail)).first()
+    user = User.query.filter(User.mail.ilike(pMail)).first()
     projects = user.projects 
     return listToJsonString(projects)
           
@@ -127,12 +126,12 @@ def AddPeople():
                 return status('mail format error') 
         else: 
             #find project based on number
-            project = (db.Project.query.filter(db.Project.number.ilike(number))).first()    
+            project = (Project.query.filter(Project.number.ilike(number))).first()    
             #go through emails in list and add data to session and after that commit it into db
             for email in listPeople:    
                 person = getPersonIdByMail(email).first() 
-                test = db.UserHasProject(person.idUser,project.idProject)   
-                db.db.session.add(test) 
+                test = UserHasProject(person.idUser,project.idProject)   
+                db.session.add(test) 
         try:       
             #db.session.add(test)
             db.session.commit()
@@ -152,15 +151,15 @@ def project():
         message = request.form['message']
         comment =  request.form['comment']            
          #based on the name of the company find it's Id
-        companyid =  (db.Company.query.filter(db.Company.name.ilike(nameOfTheCompany)).first()).idCompany   
+        companyid =  (Company.query.filter(Company.name.ilike(nameOfTheCompany)).first()).idCompany   
         #number has to be 4 digit number.
         if not re.match('[0-9]{4}', number): 
             return status('wrong number format')
         else:        
-            project = db.Project(number,companyid,name,message,comment)
+            project = Project(number,companyid,name,message,comment)
         try:
-            db.db.session.add(project) 
-            db.db.session.commit()
+            db.session.add(project) 
+            db.session.commit()
             return status('true')
         except Exception:
             return status('false')
@@ -169,7 +168,7 @@ def project():
 
 @app.route('/project/<number>/users', methods=['GET', 'POST'])
 def getProjectUsers(number):
-    project = (db.Project.query.filter(db.Project.number.ilike(number))).first()
+    project = (Project.query.filter(Project.number.ilike(number))).first()
     usersInProject = project.users    
     return listToJsonString(usersInProject) 
 
@@ -177,10 +176,10 @@ def getProjectUsers(number):
 def company():
     if request.method == 'POST':
         companyName = request.form['companyName']
-        company = db.Company(companyName)
+        company = Company(companyName)
         try:
-            db.db.session.add(company)
-            db.db.session.commit()
+            db.session.add(company)
+            db.session.commit()
             return status('true')
         except Exception:
             return status('false')
