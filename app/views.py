@@ -1,33 +1,24 @@
-import os
 import re
 import jsonpickle
-from flask import Flask, render_template, request,json
-from flask.ext.sqlalchemy import SQLAlchemy
-from sqlalchemy import BigInteger, Column, ForeignKey, Integer, String, Table, Text, text, func
-from sqlalchemy.orm import relationship
-from werkzeug.security import generate_password_hash, \
-     check_password_hash 
-import db
+from flask import  render_template, request,json
+from app import app,db
+from app.models import User
 # from app.models import Company
+# app = Flask(__name__)
+# app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY','this_should_be_configured')
+#   app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY','this_should_be_configured')
-# app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['DATABASE_URL']
-# url to connect to the database
+# # url to connect to the database
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://nqmuwoyhdwrxjp:DllrZMcqqxw5q_swBcQQGo1G2l@ec2-54-247-170-228.eu-west-1.compute.amazonaws.com:5432/dfuidc2lc8ohah'
-#creatre new instance of sqlalchemy 
-# db = SQLAlchemy(app)
-#app.config['SESSION_COOKIE_NAME']='testSession'
-
  
-
+ 
 def status(message):
-    return '{"Status" : "' + message + '"}'
+    return '{"Status" :"' + message + '"}'
 #this will return a query with users based on the mail.
 def getPersonIdByMail(mail):
     pMail = mail.lower()
     return (db.User.query.filter(db.User.mail.ilike(pMail)))
-#takes a list and returns json 
+#takes a list and ret3urns json 
 def listToJsonString(pList):
     jsonString= '['
     idNumber = 1;
@@ -88,7 +79,7 @@ def person():
 
 @app.route('/person/all', methods=['GET'])
 def getAllPersons():  
-    return listToJsonString(db.User.query.all()) 
+    return listToJsonString(User.query.all()) 
 
 @app.route('/company/all', methods=['GET'])
 def getAllCompanies(): 
@@ -226,6 +217,5 @@ def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
 
-if __name__ == '__main__':
-    app.run(debug=True)
+
 # thnkas to sqlacodegen
