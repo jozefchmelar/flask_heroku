@@ -3,6 +3,8 @@ import jsonpickle
 from flask import  render_template, request,json
 from app import app,db
 from app.models import User
+import generate,random
+from models import Company,Project,UserHasProject
 # from app.models import Company
 # app = Flask(__name__)
 # app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY','this_should_be_configured')
@@ -23,7 +25,7 @@ def listToJsonString(pList):
     jsonString= '['
     idNumber = 1;
     for element in pList:
-        jsonString += element.toJson()+',\n'
+        jsonString += element.toJson()+',\n'    
     jsonString = jsonString[:-2] +']' 
     parsed =   json.loads(jsonString)
     return json.dumps(parsed, indent=4, sort_keys=True)  #jsonString#json.dumps(jsonString)
@@ -142,6 +144,10 @@ def AddPeople():
     else:
         return render_template('addPeopleToProject.html')
 
+
+
+
+
 @app.route('/project/', methods=['GET', 'POST'])
 def project():
     if request.method == 'POST':
@@ -215,6 +221,60 @@ def add_header(response):
 def page_not_found(error):
     """Custom 404 page."""
     return render_template('404.html'), 404
+
+
+# numberOfUsers = 50
+# numerOfProjects= 20
+# @app.route('/generate', methods=['GET', 'POST'])
+# def gen():     
+#     genComp()
+#     genUser()
+#     genProj()
+#     genUhasP()
+#     return status('gen true')
+# def genComp():
+#     companies = ['TRW','HELLA','SAS','BROSE','VW','FOXCONN','SONY','LG','MIBA','HONEYWELL','QWE','LKA','LKT','KRIVA','SKLAD','BMW','RENAULT','LEVA','DEA','PROG']
+#     for item in companies:  
+#         company = Company(item)        
+#         db.session.add(company)
+#     db.session.commit()
+#     return status('genComp ok')
+# def genUser():
+#     for x in range(0, numberOfUsers): 
+#         name= generate.name()
+#         phone =generate.phone()
+#         mail = generate.mail(name)
+#         pos =  generate.getposition()
+#         toHash = 'test'
+#         user = User(name,phone,mail,pos)
+#         user.set_password(toHash)         
+#         db.session.add(user)  
+#     db.session.commit()          
+#     return status('genUser ok')
+# def genProj():
+#     for x in range(0,numerOfProjects):
+#         if x > 11: 
+#             number= str(x*100)
+#         if x < 10:
+#             number = str(x*1000)
+#         name = generate.username()
+#         companyid = generate.companyid()
+#         message = generate.message()
+#         comment = generate.comment();
+#         project = Project(number,companyid,name,message,comment)
+#         db.session.add(project)  
+#     db.session.commit()
+#     return status('genProj ok')
+# def genUhasP():
+#     for x in range(0,numerOfProjects-1):
+#         idUser=random.randint(1,numberOfUsers)
+#         idProject=random.randint(1,numerOfProjects)        
+#         test = UserHasProject( idUser, idProject)   
+#         db.session.add(test)  
+#     db.session.commit()
+#     return status('genProj ok')
+
+
 
 
 # thnkas to sqlacodegen

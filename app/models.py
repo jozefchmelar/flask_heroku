@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, \
      check_password_hash 
 import jsonpickle
+from flask import json
 from app  import db 
 
 class UserHasProject(object):
@@ -93,13 +94,14 @@ class Company(db.Model):
     __tablename__ = 'Company'
     __name__ = 'Company'
 
-    idCompany = db.Column(db.Integer, primary_key=True)
+    idCompany = db.Column(db.Integer, primary_key=True,server_default=text("nextval('seqproject'::regclass)"))
     name = db.Column(db.String(30))
 
     def __init__(self, name):
         self.name = name
 
-    def toJson(self):
-        return '{"Company" : "'+ self.name +'"}'         
+    def toJson(self):             
+        return '{"idCompany" :"'+ str(self.idCompany) +'",\n "name" : "'+self.name+'"}\n'
+        
 #imporatnt to map the relationship.
 db.mapper(UserHasProject,t_UserHasProject)
