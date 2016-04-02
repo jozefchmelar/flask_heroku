@@ -69,14 +69,14 @@ class Project(db.Model):
     name = db.Column(db.String(30))
     comment = db.Column(db.String(200))
     company = db.relationship('Company')
-    CompanyName= ''
+    
     def __init__(self, number, idCompany, name, message,comment):
         self.name = name.lower()
         self.number = number
         self.idCompany = idCompany
         self.message = message 
         self.comment=comment
-        self.CompanyName = self.Company.name
+        
 
     #this is very important to jsonpickle.     
     def __getstate__(self):
@@ -92,7 +92,7 @@ class Project(db.Model):
                    message=self.message,
                    name=self.name,
                    comment=self.comment,
-                   CompanyName=self.CompanyName)
+                   CompanyName=self.company.name)
         #return jsonpickle.encode(self, unpicklable=False)
 
 
