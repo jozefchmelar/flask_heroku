@@ -117,7 +117,7 @@ def getPersonByMailFromForm():
 def getPersonsProjects(pMail):
     user = User.query.filter(User.mail.ilike(pMail)).first()
     projects = user.projects 
-    return projects[0].toJson()#listToJsonString(projects)
+    return listToJsonString(projects)
           
 # this will add people to project
 @app.route('/AddPeople/', methods=['GET', 'POST'])

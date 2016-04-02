@@ -92,8 +92,7 @@ class Project(db.Model):
                    message=str(self.message),
                    name=self.name,
                    comment=self.comment,
-                   CompanyName=self.company.name) 
-
+                   company=self.company.name) 
         return data.get_data(as_text=True)
         #return jsonpickle.encode(self, unpicklable=False)
 
