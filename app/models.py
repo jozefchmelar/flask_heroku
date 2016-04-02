@@ -77,7 +77,7 @@ class Project(db.Model):
         self.idCompany = idCompany
         self.message = message 
         self.comment=comment
-        self.CompanyName = self.CompanyName.name
+        self.CompanyName = self.Company.name
 
     #this is very important to jsonpickle.     
     def __getstate__(self):
