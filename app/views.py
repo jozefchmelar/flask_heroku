@@ -1,6 +1,6 @@
 import re
 import jsonpickle
-from flask import  render_template, request,json
+from flask import  render_template, request,json,jsonify
 from app import app,db
 from app.models import User
 import generate,random
@@ -104,7 +104,7 @@ def getPersonByMail(pMail):
 def testing():
     user = User.query.filter(User.mail.ilike('jeneva.garry0@mts.net')).first()
     projects = user.projects
-    return status(projects[0].toJson())
+    return jsonify(test='test')
 
 @app.route('/person/byMail/',methods=['GET','POST'])
 def getPersonByMailFromForm():

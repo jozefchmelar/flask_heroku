@@ -9,6 +9,9 @@ gevent==1.1.0
 greenlet==0.4.9
 gunicorn==19.4.5
 html5lib==0.999
+SQLAlchemy==1.0.12
+virtualenv==14.0.6
+
 httplib2==0.8
 inflect==0.2.5
 itsdangerous==0.24
@@ -19,13 +22,11 @@ lxml==3.3.3
 MarkupSafe==0.23
 oauthlib==0.6.1
 passlib==1.6.5
-pexpect==3.1
 Pillow==2.3.0
 pipreqs==0.4.2
 piston-mini-client==0.7.5
 psycopg2==2.6.1
 pycrypto==2.6.1
-pycurl==7.19.3
 pyOpenSSL==0.13
 pyserial==2.6
 pyxdg==0.25
@@ -33,9 +34,7 @@ reportlab==3.0
 requests==2.2.1
 six==1.5.2
 sqlacodegen==1.1.6
-SQLAlchemy==1.0.12
 urllib3==1.7.1
-virtualenv==14.0.6
 Werkzeug==0.11.4
 WTForms==2.1
 yapf==0.6.2
