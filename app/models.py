@@ -69,7 +69,6 @@ class Project(db.Model):
     name = db.Column(db.String(30))
     comment = db.Column(db.String(200))
     company = db.relationship('Company')
-    company_name = company.query.all()
 
     def __init__(self, number, idCompany, name, message,comment):
         self.name = name.lower()
