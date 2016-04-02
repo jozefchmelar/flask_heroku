@@ -3,7 +3,7 @@ from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, \
      check_password_hash 
 import jsonpickle
-from flask import json
+from flask import json,jsonify
 from app  import db 
 
 class UserHasProject(object):
@@ -76,7 +76,7 @@ class Project(db.Model):
         self.idCompany = idCompany
         self.message = message 
         self.comment=comment
-      #  self.CompanyName = self.Company.name
+        self.CompanyName = self.Company.name
 
     #this is very important to jsonpickle.     
     def __getstate__(self):
@@ -88,7 +88,12 @@ class Project(db.Model):
         self.__dict__.update(state)
     
     def toJson(self):
-        return jsonpickle.encode(self, unpicklable=False)
+        return jsonify(number=self.number,
+                   message=self.message,
+                   name=self.name,
+                   comment=self.comment,
+                   CompanyName=this.CompanyName)
+        #return jsonpickle.encode(self, unpicklable=False)
 
 
 class Company(db.Model):
