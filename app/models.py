@@ -69,7 +69,7 @@ class Project(db.Model):
     name = db.Column(db.String(30))
     comment = db.Column(db.String(200))
     Company = db.relationship('Company')
-    CompanyName = db.relationship('Company').name
+    CompanyName = ''
 
     def __init__(self, number, idCompany, name, message,comment):
         self.name = name.lower()
@@ -77,6 +77,7 @@ class Project(db.Model):
         self.idCompany = idCompany
         self.message = message 
         self.comment=comment
+        self.CompanyName = self.CompanyName.name
 
     #this is very important to jsonpickle.     
     def __getstate__(self):
