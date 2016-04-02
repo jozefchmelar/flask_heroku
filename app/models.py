@@ -89,12 +89,12 @@ class Project(db.Model):
     
     def toJson(self):
         data =  jsonify(number=self.number,
-                   message=self.message,
+                   message=str(self.message),
                    name=self.name,
                    comment=self.comment,
                    CompanyName=self.company.name) 
 
-        return data.get_data(as_test=True)
+        return data.get_data(as_text=True)
         #return jsonpickle.encode(self, unpicklable=False)
 
 
