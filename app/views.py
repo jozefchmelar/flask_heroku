@@ -100,6 +100,12 @@ def getPersonByMail(pMail):
     else: 
         return render_template('404.html'), 404 
 
+@app.route('/test',methods=['GET','POST'])
+def testing():
+    user = User.query.filter(User.mail.ilike('jeneva.garry0@mts.net')).first()
+    projects = user.projects
+    return status(projects.Company.name)
+
 @app.route('/person/byMail/',methods=['GET','POST'])
 def getPersonByMailFromForm():
         pMail = request.form['mail']

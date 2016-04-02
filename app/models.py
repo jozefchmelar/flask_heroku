@@ -90,6 +90,7 @@ class Project(db.Model):
     def toJson(self):
         return jsonpickle.encode(self, unpicklable=False)
 
+
 class Company(db.Model):
     __tablename__ = 'Company'
     __name__ = 'Company'
