@@ -68,8 +68,8 @@ class Project(db.Model):
     idCompany = db.Column(db.ForeignKey('Company.idCompany'), nullable=False, index=True)
     name = db.Column(db.String(30))
     comment = db.Column(db.String(200))
-    Company = db.relationship('Company')
-    CompanyName = ''
+    company = db.relationship('Company')
+    company_name = company.query.all()
 
     def __init__(self, number, idCompany, name, message,comment):
         self.name = name.lower()
@@ -77,7 +77,7 @@ class Project(db.Model):
         self.idCompany = idCompany
         self.message = message 
         self.comment=comment
-        self.CompanyName = self.Company.name
+      #  self.CompanyName = self.Company.name
 
     #this is very important to jsonpickle.     
     def __getstate__(self):
