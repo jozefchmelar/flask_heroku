@@ -92,7 +92,7 @@ class Project(db.Model):
                    message=self.message,
                    name=self.name,
                    comment=self.comment,
-                   CompanyName=this.CompanyName)
+                   CompanyName=self.CompanyName)
         #return jsonpickle.encode(self, unpicklable=False)
 
 
