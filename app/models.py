@@ -88,11 +88,11 @@ class Project(db.Model):
         self.__dict__.update(state)
     
     def toJson(self):
-        return jsonify(number=self.number,
+        return str(jsonify(number=self.number,
                    message=self.message,
                    name=self.name,
                    comment=self.comment,
-                   CompanyName=self.company.name)
+                   CompanyName=self.company.name))
         #return jsonpickle.encode(self, unpicklable=False)
 
 
