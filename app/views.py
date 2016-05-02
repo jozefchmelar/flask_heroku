@@ -38,9 +38,10 @@ def listToJsonString(pList):
 def ok():
     return status('true')
  
-@app.route('/',methods=['GET'])                                                                         
-def home():
+@app.route('/nok',methods=['GET'])                                                                         
+def nok():
     return status('false') 
+    
 @app.route('/',methods=['GET'])                                                                         
 def home():
     return render_template('home.html')
