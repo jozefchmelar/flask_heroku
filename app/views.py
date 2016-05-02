@@ -34,7 +34,7 @@ def listToJsonString(pList):
 
 # print json.dumps(jsonStr, sort_keys=True, indent=2, separators=(',', ': '))
 # Routing for your application.
-@app.route('/ok',methods=['GET'])                                                                         
+@app.route('/khaki/',methods=['GET'])                                                                         
 def ok():
     return status('true')
  
