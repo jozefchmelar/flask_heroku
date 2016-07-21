@@ -36,7 +36,7 @@ def listToJsonString(pList):
 # Routing for your application.
 @app.route('/khaki/',methods=['GET'])                                                                         
 def ok():
-    return status('false')
+    return status('true')
  
 @app.route('/nok',methods=['GET'])                                                                         
 def nok():
